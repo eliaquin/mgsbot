@@ -1,21 +1,22 @@
 {
-  "permissions": {
-    "allow": [
-      "Bash(bun install:*)",
-      "Bash(bun run:*)",
-      "Bash(wc:*)",
-      "Bash(bun build:*)",
-      "Bash(npx tsc:*)",
-      "Bash(bun x tsc:*)",
-      "Bash(bun tsc:*)",
-      "Bash(./node_modules/.bin/tsc:*)",
-      "Bash(node_modules/.bin/tsc.exe:*)",
-      "Bash(node_modules/typescript/bin/tsc:*)",
-      "Bash(bun remove:*)",
-      "Bash(bun add:*)",
-      "Bash(npx:*)",
-      "Bash(dir:*)",
-      "Bash(git rm:*)"
-    ]
-  }
+	"permissions": {
+		"allow": [
+			"Bash(bun install:*)",
+			"Bash(bun run:*)",
+			"Bash(wc:*)",
+			"Bash(bun build:*)",
+			"Bash(npx tsc:*)",
+			"Bash(bun x tsc:*)",
+			"Bash(bun tsc:*)",
+			"Bash(./node_modules/.bin/tsc:*)",
+			"Bash(node_modules/.bin/tsc.exe:*)",
+			"Bash(node_modules/typescript/bin/tsc:*)",
+			"Bash(bun remove:*)",
+			"Bash(bun add:*)",
+			"Bash(npx:*)",
+			"Bash(dir:*)",
+			"Bash(git rm:*)",
+			"Bash(bunx biome check:*)"
+		]
+	}
 }
