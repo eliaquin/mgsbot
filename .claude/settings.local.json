@@ -30,7 +30,15 @@
 			"WebFetch(domain:github.com)",
 			"WebFetch(domain:raw.githubusercontent.com)",
 			"WebFetch(domain:www.npmjs.com)",
-			"Bash(python3:*)"
+			"Bash(python3:*)",
+			"WebFetch(domain:ai.google.dev)",
+			"WebFetch(domain:platform.openai.com)",
+			"WebFetch(domain:docs.voyageai.com)",
+			"WebFetch(domain:www.aifreeapi.com)",
+			"WebFetch(domain:cohere.com)",
+			"WebFetch(domain:www.metacto.com)",
+			"WebFetch(domain:llmpricingtable.com)",
+			"WebFetch(domain:developers.googleblog.com)"
 		]
 	}
 }
