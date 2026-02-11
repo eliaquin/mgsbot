@@ -38,7 +38,8 @@
 			"WebFetch(domain:cohere.com)",
 			"WebFetch(domain:www.metacto.com)",
 			"WebFetch(domain:llmpricingtable.com)",
-			"WebFetch(domain:developers.googleblog.com)"
+			"WebFetch(domain:developers.googleblog.com)",
+			"Bash(xargs:*)"
 		]
 	}
 }
