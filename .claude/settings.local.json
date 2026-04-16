@@ -39,7 +39,10 @@
 			"WebFetch(domain:www.metacto.com)",
 			"WebFetch(domain:llmpricingtable.com)",
 			"WebFetch(domain:developers.googleblog.com)",
-			"Bash(xargs:*)"
+			"Bash(xargs:*)",
+			"WebFetch(domain:fal.ai)",
+			"WebFetch(domain:lemonfox.ai)",
+			"WebFetch(domain:www.lemonfox.ai)"
 		]
 	}
 }
