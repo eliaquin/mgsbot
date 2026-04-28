@@ -7,6 +7,7 @@ import { getBotName, isBotConfigured, loadConfig } from "./config.ts";
 import {
 	getUserDisplayName,
 	isGroupChat,
+	observeConversationTurn,
 	processConversation,
 } from "./conversation.ts";
 import {
@@ -137,7 +138,15 @@ export function registerHandlers(bot: Bot): void {
 	// Voice messages
 	bot.on("message:voice", async (ctx) => {
 		const mentionType = detectMentionType(ctx, ctx.me.id);
-		if (isGroupChat(ctx) && mentionType === "none") return;
+		const userName = getUserDisplayName(ctx);
+		if (isGroupChat(ctx) && mentionType === "none") {
+			await observeConversationTurn(
+				ctx,
+				`[Voice message from ${userName}]`,
+				userName,
+			);
+			return;
+		}
 		try {
 			const transcription = await downloadAndTranscribe(
 				ctx,
@@ -153,7 +162,6 @@ export function registerHandlers(bot: Bot): void {
 					})
 					.catch(() => {});
 			}
-			const userName = getUserDisplayName(ctx);
 			const content = `[Audio from ${userName}]: ${transcription}`;
 			await processConversation(
 				ctx,
@@ -175,7 +183,15 @@ export function registerHandlers(bot: Bot): void {
 	// Audio files
 	bot.on("message:audio", async (ctx) => {
 		const mentionType = detectMentionType(ctx, ctx.me.id);
-		if (isGroupChat(ctx) && mentionType === "none") return;
+		const userName = getUserDisplayName(ctx);
+		if (isGroupChat(ctx) && mentionType === "none") {
+			await observeConversationTurn(
+				ctx,
+				`[Audio file from ${userName}]`,
+				userName,
+			);
+			return;
+		}
 		try {
 			const ext = safeMediaExtension(
 				ctx.message.audio.mime_type?.split("/")[1],
@@ -196,7 +212,6 @@ export function registerHandlers(bot: Bot): void {
 					})
 					.catch(() => {});
 			}
-			const userName = getUserDisplayName(ctx);
 			const content = `[Audio from ${userName}]: ${transcription}`;
 			await processConversation(
 				ctx,
@@ -217,11 +232,18 @@ export function registerHandlers(bot: Bot): void {
 	bot.on("message:photo", async (ctx) => {
 		if (isSimpleAssistantMode) return;
 		const mentionType = detectMentionType(ctx, ctx.me.id);
-		if (isGroupChat(ctx) && mentionType === "none") return;
+		const userName = getUserDisplayName(ctx);
+		if (isGroupChat(ctx) && mentionType === "none") {
+			const caption = ctx.message.caption;
+			const observedContent = caption
+				? `[Image from ${userName}, caption: "${caption}"]`
+				: `[Image from ${userName}]`;
+			await observeConversationTurn(ctx, observedContent, userName);
+			return;
+		}
 		try {
 			const { filePath, mimeType } = await downloadImage(ctx, botToken);
 			const caption = ctx.message.caption;
-			const userName = getUserDisplayName(ctx);
 			const provider = createChatProvider();
 
 			try {
@@ -296,7 +318,10 @@ export function registerHandlers(bot: Bot): void {
 		// YouTube analysis disabled in simple assistant mode
 		const yt = isSimpleAssistantMode ? null : extractYouTubeUrl(ctx);
 		if (yt) {
-			if (isGroupChat(ctx) && mentionType === "none") return;
+			if (isGroupChat(ctx) && mentionType === "none") {
+				await observeConversationTurn(ctx, text, userName);
+				return;
+			}
 			const analysis = await analyzeYouTube(
 				yt.url,
 				yt.remainingText || undefined,
@@ -323,7 +348,14 @@ export function registerHandlers(bot: Bot): void {
 			const replyPhoto = replyMsg?.photo;
 
 			if (replyVoice || replyAudio) {
-				if (isGroupChat(ctx) && mentionType === "none") return;
+				if (isGroupChat(ctx) && mentionType === "none") {
+					await observeConversationTurn(
+						ctx,
+						`[Reply to audio by ${userName}]: "${text}"`,
+						userName,
+					);
+					return;
+				}
 
 				try {
 					const fileId = replyVoice
@@ -379,7 +411,14 @@ export function registerHandlers(bot: Bot): void {
 
 			// Reply-to-photo: describe image from replied message
 			if (replyPhoto && replyPhoto.length > 0) {
-				if (isGroupChat(ctx) && mentionType === "none") return;
+				if (isGroupChat(ctx) && mentionType === "none") {
+					await observeConversationTurn(
+						ctx,
+						`[Reply to image by ${userName}]: "${text}"`,
+						userName,
+					);
+					return;
+				}
 
 				try {
 					const photo = replyPhoto[replyPhoto.length - 1];
@@ -487,7 +526,10 @@ export function registerHandlers(bot: Bot): void {
 		}
 
 		// In groups, only respond when mentioned
-		if (isGroupChat(ctx) && mentionType === "none") return;
+		if (isGroupChat(ctx) && mentionType === "none") {
+			await observeConversationTurn(ctx, text, userName);
+			return;
+		}
 
 		// Reply-to-text: include quoted message content for context
 		const replyText = ctx.message.reply_to_message?.text;

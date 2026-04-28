@@ -321,9 +321,6 @@ export async function processConversation(
 	const systemPrompt = await assembleSystemPrompt(promptCtx);
 	const messages = buildMessages(buffer, mediaAttachment);
 
-	// Show typing indicator (non-critical, don't crash if it fails)
-	await ctx.replyWithChatAction("typing").catch(() => {});
-
 	// Generate response
 	const responseText = await generateResponse(systemPrompt, messages);
 
@@ -363,6 +360,42 @@ export async function processConversation(
 				);
 			});
 		}
+	}
+}
+
+export async function observeConversationTurn(
+	ctx: Context,
+	userContent: string,
+	userName: string,
+): Promise<void> {
+	const chatId = ctx.chat?.id;
+	if (!chatId) return;
+
+	const { userId, username } = getUserInfo(ctx);
+	if (userId) {
+		await registerIdentity(userId, userName, username);
+	}
+
+	const overflow = await withChatLock(chatId, async () => {
+		const buffer = await loadSensory(chatId);
+		const userMessage: ConversationMessage = {
+			role: "user",
+			name: userName,
+			userId,
+			content: userContent,
+			timestamp: Date.now(),
+		};
+		return addMessageToSensory(buffer, userMessage);
+	});
+	logUserMessage(userName, userContent).catch(console.error);
+
+	if (overflow) {
+		promoteToMemory(chatId, overflow).catch((err) => {
+			console.error(
+				`[promote] Failed for chat ${chatId} (observer overflow):`,
+				err,
+			);
+		});
 	}
 }
 
